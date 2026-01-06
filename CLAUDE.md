@@ -188,20 +188,20 @@ getRecentActivity(limit) // 最近の学習履歴
 
 ## 開発フェーズ
 
-### Phase 1: MVP（現在）
+### Phase 1: MVP（完了）
 - [x] 要件定義書作成
 - [x] MVP設計書作成
 - [x] 実装プラン作成
-- [ ] プロジェクトセットアップ
-- [ ] ユーザー認証
-- [ ] 長文読解機能
-- [ ] ダッシュボード
-- [ ] シードデータ投入
+- [x] プロジェクトセットアップ
+- [x] ユーザー認証
+- [x] 長文読解機能
+- [x] ダッシュボード
+- [x] シードデータ投入
 
-### Phase 2: AI統合
-- [ ] GPT-4による問題生成API
-- [ ] 長文問題の自動生成
-- [ ] 文法問題の自動生成
+### Phase 2: AI統合（完了）
+- [x] GPT-4による問題生成API
+- [x] 長文問題の自動生成（管理者専用）
+- [ ] 文法問題の自動生成（後回し）
 
 ### Phase 3: 学習管理
 - [ ] 進捗記録の拡張
@@ -257,8 +257,31 @@ getRecentActivity(limit) // 最近の学習履歴
 
 ```typescript
 // src/middleware.ts
-const protectedPaths = ['/dashboard', '/reading', '/results']
+const protectedPaths = ['/dashboard', '/reading', '/results', '/admin']
 const authPaths = ['/login', '/register']
+```
+
+## 管理者機能（Phase 2）
+
+### 管理者画面
+- `/admin` - 管理ダッシュボード
+- `/admin/generate` - AI問題生成
+
+### AI生成 Server Actions (src/actions/ai/)
+```typescript
+isAdmin()                           // 管理者チェック
+requireAdmin()                      // 管理者必須チェック
+generatePassage(request)            // AI長文生成
+saveGeneratedPassage(passage, meta) // 生成した長文を保存
+generateQuestions(request)          // AI設問生成
+saveGeneratedQuestions(id, questions) // 生成した設問を保存
+```
+
+### 環境変数（Phase 2追加）
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4-turbo-preview
+OPENAI_MAX_TOKENS=4000
 ```
 
 ## 参考ドキュメント

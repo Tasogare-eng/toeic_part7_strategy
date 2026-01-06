@@ -21,6 +21,7 @@ export interface Profile {
   name: string | null
   target_score: number
   current_score: number | null
+  is_admin: boolean
   created_at: string
   updated_at: string
 }
@@ -32,6 +33,8 @@ export interface ReadingPassage {
   content: string
   difficulty: number
   is_multiple_passage: boolean
+  is_ai_generated: boolean
+  ai_metadata: Record<string, unknown> | null
   created_at: string
 }
 
@@ -44,6 +47,7 @@ export interface ReadingQuestion {
   correct_answer: number
   explanation: string | null
   order_index: number
+  is_ai_generated: boolean
   created_at: string
 }
 

@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // 認証が必要なパス
-  const protectedPaths = ["/dashboard", "/reading", "/results"]
+  const protectedPaths = ["/dashboard", "/reading", "/results", "/admin"]
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   )
@@ -44,6 +44,9 @@ export async function middleware(request: NextRequest) {
     url.pathname = "/login"
     return NextResponse.redirect(url)
   }
+
+  // 管理者パスのチェック（認証はlayoutで行う）
+  // middlewareではログインチェックのみ行い、is_adminチェックはlayout.tsxで実施
 
   // ログイン済みユーザーが認証ページにアクセスした場合
   const authPaths = ["/login", "/register"]

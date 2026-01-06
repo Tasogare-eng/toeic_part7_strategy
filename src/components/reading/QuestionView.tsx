@@ -37,9 +37,14 @@ export function QuestionView({ passage }: QuestionViewProps) {
     }))
   }
 
+  function calculateTimeSpent(): number {
+    const now = Date.now()
+    return Math.round((now - questionStartTimeRef.current) / 1000)
+  }
+
   async function handleNext() {
     // 経過時間を記録
-    const timeSpent = Math.round((Date.now() - questionStartTimeRef.current) / 1000)
+    const timeSpent = calculateTimeSpent()
     const updatedTimesSpent = {
       ...timesSpent,
       [currentQuestion.id]: timeSpent,
