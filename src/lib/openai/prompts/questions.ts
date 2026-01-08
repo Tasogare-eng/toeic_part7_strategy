@@ -79,18 +79,20 @@ ${questionTypesInstructions}
 7. Provide a clear explanation for each correct answer
 
 ## Output Format:
-Return a JSON array with the following structure:
-[
-  {
-    "questionText": "The question text",
-    "questionType": "main_idea|detail|inference|vocabulary|purpose",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctAnswer": 0,  // Index of correct option (0-3)
-    "explanation": "Explanation of why the correct answer is correct and others are wrong"
-  }
-]
+Return a JSON object with the following structure:
+{
+  "questions": [
+    {
+      "questionText": "The question text",
+      "questionType": "main_idea|detail|inference|vocabulary|purpose",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctAnswer": 0,
+      "explanation": "Explanation of why the correct answer is correct and others are wrong"
+    }
+  ]
+}
 
-IMPORTANT: Return ONLY the JSON array, no additional text or explanation.`
+IMPORTANT: Return ONLY the JSON object with a "questions" array. No additional text.`
 }
 
 export function getSystemPromptForQuestions(): string {
