@@ -78,3 +78,24 @@ export async function getProfile() {
 
   return profile
 }
+
+export async function getGoogleAuthUrl(): Promise<{ url: string | null; error?: string }> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+    },
+  })
+
+  if (error) {
+    return { url: null, error: error.message }
+  }
+
+  return { url: data.url }
+}

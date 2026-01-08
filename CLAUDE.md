@@ -186,6 +186,16 @@ getDashboardStats()      // ダッシュボード統計
 getRecentActivity(limit) // 最近の学習履歴
 ```
 
+### 分析 (src/actions/analytics.ts)
+```typescript
+getDailyAccuracy(days)       // 日別正答率
+getAccuracyByDocumentType()  // 文書タイプ別正答率
+getAccuracyByQuestionType()  // 設問タイプ別正答率
+getAccuracyByDifficulty()    // 難易度別正答率
+getWeakAreas()               // 弱点分析
+getAnalyticsSummary()        // サマリー統計
+```
+
 ## 開発フェーズ
 
 ### Phase 1: MVP（完了）
@@ -203,10 +213,11 @@ getRecentActivity(limit) // 最近の学習履歴
 - [x] 長文問題の自動生成（管理者専用）
 - [ ] 文法問題の自動生成（後回し）
 
-### Phase 3: 学習管理
-- [ ] 進捗記録の拡張
-- [ ] 正答率グラフ
-- [ ] 弱点分析
+### Phase 3: 学習管理 + Google認証（完了）
+- [x] Google OAuth認証
+- [x] 進捗記録の拡張（日別/カテゴリ別統計ビュー）
+- [x] 正答率グラフ（recharts）
+- [x] 弱点分析
 
 ### Phase 4: 復習・時間管理
 - [ ] 復習機能
@@ -257,7 +268,7 @@ getRecentActivity(limit) // 最近の学習履歴
 
 ```typescript
 // src/middleware.ts
-const protectedPaths = ['/dashboard', '/reading', '/results', '/admin']
+const protectedPaths = ['/dashboard', '/reading', '/results', '/admin', '/analytics']
 const authPaths = ['/login', '/register']
 ```
 

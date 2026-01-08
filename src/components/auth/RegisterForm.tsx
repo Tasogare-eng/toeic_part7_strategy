@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import Link from "next/link"
+import { GoogleLoginButton } from "./GoogleLoginButton"
 
 export function RegisterForm() {
   const [error, setError] = useState<string | null>(null)
@@ -72,6 +73,17 @@ export function RegisterForm() {
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? "登録中..." : "アカウント作成"}
           </Button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">または</span>
+            </div>
+          </div>
+
+          <GoogleLoginButton />
         </form>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           すでにアカウントをお持ちの方は{" "}

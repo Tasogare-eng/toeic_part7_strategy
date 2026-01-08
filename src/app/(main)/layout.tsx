@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { signOut, getProfile } from "@/actions/auth"
+import { BarChart3, BookOpen, Home } from "lucide-react"
 
 export default async function MainLayout({
   children,
@@ -14,9 +15,34 @@ export default async function MainLayout({
       {/* ヘッダー */}
       <header className="bg-white border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/dashboard" className="font-bold text-lg">
-            TOEIC Part7 Training
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/dashboard" className="font-bold text-lg">
+              TOEIC Part7 Training
+            </Link>
+            <nav className="hidden md:flex items-center gap-4">
+              <Link
+                href="/dashboard"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Home className="h-4 w-4" />
+                ダッシュボード
+              </Link>
+              <Link
+                href="/reading"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <BookOpen className="h-4 w-4" />
+                問題一覧
+              </Link>
+              <Link
+                href="/analytics"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <BarChart3 className="h-4 w-4" />
+                学習分析
+              </Link>
+            </nav>
+          </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
               {profile?.name || profile?.email}
