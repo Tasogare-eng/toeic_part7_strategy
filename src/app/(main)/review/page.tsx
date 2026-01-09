@@ -16,9 +16,8 @@ import { revalidatePath } from "next/cache"
 
 async function handleGenerateSchedule() {
   "use server"
-  const count = await generateReviewScheduleFromMistakes()
+  await generateReviewScheduleFromMistakes()
   revalidatePath("/review")
-  return count
 }
 
 export default async function ReviewPage() {

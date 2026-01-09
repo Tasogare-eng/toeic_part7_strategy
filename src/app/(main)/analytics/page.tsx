@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { AccuracyChart, CategoryChart, WeakAreasCard } from "@/components/analytics"
+import { DynamicAccuracyChart, DynamicCategoryChart, WeakAreasCard } from "@/components/analytics"
 import {
   getDailyAccuracy,
   getAccuracyByDocumentType,
@@ -92,7 +92,7 @@ export default async function AnalyticsPage() {
           <CardDescription>過去30日間の日別正答率</CardDescription>
         </CardHeader>
         <CardContent>
-          <AccuracyChart data={dailyData} />
+          <DynamicAccuracyChart data={dailyData} />
         </CardContent>
       </Card>
 
@@ -113,7 +113,7 @@ export default async function AnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CategoryChart data={docTypeData} />
+              <DynamicCategoryChart data={docTypeData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -127,7 +127,7 @@ export default async function AnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CategoryChart data={questionTypeData} />
+              <DynamicCategoryChart data={questionTypeData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -141,7 +141,7 @@ export default async function AnalyticsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <CategoryChart data={difficultyData} />
+              <DynamicCategoryChart data={difficultyData} />
             </CardContent>
           </Card>
         </TabsContent>

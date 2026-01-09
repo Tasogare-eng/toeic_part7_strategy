@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useMemo } from "react"
 import {
   LineChart,
   Line,
@@ -16,7 +17,7 @@ interface Props {
   data: DailyStats[]
 }
 
-export function AccuracyChart({ data }: Props) {
+function AccuracyChartComponent({ data }: Props) {
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
@@ -25,10 +26,10 @@ export function AccuracyChart({ data }: Props) {
     )
   }
 
-  const formattedData = data.map(d => ({
+  const formattedData = useMemo(() => data.map(d => ({
     ...d,
     date: new Date(d.date).toLocaleDateString("ja-JP", { month: "short", day: "numeric" })
-  }))
+  })), [data])
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -79,3 +80,6 @@ export function AccuracyChart({ data }: Props) {
     </ResponsiveContainer>
   )
 }
+
+// React.memoでメモ化して不要な再レンダリングを防止
+export const AccuracyChart = memo(AccuracyChartComponent)

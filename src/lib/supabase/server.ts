@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr"
+import { createClient as createSupabaseClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 
 export async function createClient() {
@@ -21,6 +22,24 @@ export async function createClient() {
             // Server Component からの呼び出し時は無視
           }
         },
+      },
+    }
+  )
+}
+
+/**
+ * Service Role Keyを使用するSupabaseクライアント
+ * unstable_cache内など、cookiesにアクセスできない場所で使用
+ * RLSをバイパスするため、userIdを明示的に指定してクエリする必要がある
+ */
+export function createServiceClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     }
   )

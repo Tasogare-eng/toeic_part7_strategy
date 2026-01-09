@@ -135,7 +135,7 @@ export async function getTodayReviewVocabulary(): Promise<
 // 未学習の単語を取得
 export async function getUnlearnedVocabulary(
   options?: GetVocabularyOptions
-): Promise<Vocabulary[]> {
+): Promise<VocabularyWithProgress[]> {
   const supabase = await createClient()
   const {
     data: { user },
@@ -175,7 +175,11 @@ export async function getUnlearnedVocabulary(
   const { data, error } = await query
 
   if (error) throw error
-  return data || []
+  // 未学習なのでvocabulary_progressはnull
+  return (data || []).map((vocab) => ({
+    ...vocab,
+    vocabulary_progress: null,
+  }))
 }
 
 // 単語学習結果を記録

@@ -100,8 +100,11 @@ export async function getTimeOverruns(): Promise<{
   let grammarTotal = 0
 
   grammarAnswers?.forEach((answer) => {
-    const difficulty =
-      (answer.grammar_questions as { difficulty: number } | null)?.difficulty || 3
+    // grammar_questionsは配列または単一オブジェクトとして返される可能性がある
+    const grammarQuestion = Array.isArray(answer.grammar_questions)
+      ? answer.grammar_questions[0]
+      : answer.grammar_questions
+    const difficulty = (grammarQuestion as { difficulty: number } | null)?.difficulty || 3
     const recommended = getGrammarRecommendedTime(difficulty)
 
     if (answer.time_spent_seconds && answer.time_spent_seconds > recommended) {

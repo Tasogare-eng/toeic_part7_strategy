@@ -40,19 +40,24 @@ export default async function GrammarPage({ searchParams }: Props) {
   const params = await searchParams
   const selectedCategory = params.category as GrammarCategory | undefined
 
-  const [stats, categoryStats, incorrectQuestions] = await Promise.all([
+  // すべてのデータフェッチを1つのPromise.allに統合（パフォーマンス最適化）
+  const [
+    stats,
+    categoryStats,
+    incorrectQuestions,
+    ...categoryCountsRaw
+  ] = await Promise.all([
     getGrammarStats(),
     getGrammarStatsByCategory(),
     getIncorrectGrammarQuestions(5),
+    ...ALL_CATEGORIES.map((cat) => getGrammarQuestionCount({ category: cat })),
   ])
 
-  // Get question counts for each category
-  const categoryCounts = await Promise.all(
-    ALL_CATEGORIES.map(async (cat) => ({
-      category: cat,
-      count: await getGrammarQuestionCount({ category: cat }),
-    }))
-  )
+  // カテゴリカウントを整形
+  const categoryCounts = ALL_CATEGORIES.map((category, index) => ({
+    category,
+    count: categoryCountsRaw[index] as number,
+  }))
 
   return (
     <div className="container mx-auto py-6 space-y-6">
