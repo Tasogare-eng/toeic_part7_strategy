@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useMemo } from "react"
 import {
   BarChart,
   Bar,
@@ -42,7 +43,12 @@ const LABEL_MAP: Record<string, string> = {
   purpose: "目的"
 }
 
-export function CategoryChart({ data, title }: Props) {
+function CategoryChartComponent({ data, title }: Props) {
+  const formattedData = useMemo(() => data.map(d => ({
+    ...d,
+    label: LABEL_MAP[d.name] || d.name
+  })), [data])
+
   if (data.length === 0) {
     return (
       <div className="flex items-center justify-center h-[300px] text-muted-foreground">
@@ -50,11 +56,6 @@ export function CategoryChart({ data, title }: Props) {
       </div>
     )
   }
-
-  const formattedData = data.map(d => ({
-    ...d,
-    label: LABEL_MAP[d.name] || d.name
-  }))
 
   return (
     <ResponsiveContainer width="100%" height={300}>
@@ -109,3 +110,6 @@ export function CategoryChart({ data, title }: Props) {
     </ResponsiveContainer>
   )
 }
+
+// React.memoでメモ化して不要な再レンダリングを防止
+export const CategoryChart = memo(CategoryChartComponent)

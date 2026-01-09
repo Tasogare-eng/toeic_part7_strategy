@@ -1,6 +1,8 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { unstable_cache } from "next/cache"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
+import { CACHE_TIMES, CACHE_TAGS } from "@/lib/cache"
 
 export interface DailyStats {
   date: string
@@ -22,11 +24,9 @@ export interface WeakAreas {
   questionTypes: Array<{ question_type: string; accuracy: number; questions_answered: number }>
 }
 
-// 日別正答率の取得（グラフ用）
-export async function getDailyAccuracy(days: number = 30): Promise<DailyStats[]> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return []
+// 日別正答率の取得（グラフ用）- 内部実装（キャッシュ用にService Clientを使用）
+async function getDailyAccuracyImpl(userId: string, days: number): Promise<DailyStats[]> {
+  const supabase = createServiceClient()
 
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - days)
@@ -34,7 +34,7 @@ export async function getDailyAccuracy(days: number = 30): Promise<DailyStats[]>
   const { data, error } = await supabase
     .from("daily_user_stats")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .gte("date", startDate.toISOString().split("T")[0])
     .order("date", { ascending: true })
 
@@ -46,16 +46,30 @@ export async function getDailyAccuracy(days: number = 30): Promise<DailyStats[]>
   return data ?? []
 }
 
-// 文書タイプ別正答率
-export async function getAccuracyByDocumentType(): Promise<CategoryStats[]> {
+// 日別正答率の取得（グラフ用）- キャッシュ付き
+export async function getDailyAccuracy(days: number = 30): Promise<DailyStats[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
+  return unstable_cache(
+    () => getDailyAccuracyImpl(user.id, days),
+    [`daily-accuracy-${user.id}-${days}`],
+    {
+      revalidate: CACHE_TIMES.EXTRA_LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
+}
+
+// 文書タイプ別正答率 - 内部実装（キャッシュ用にService Clientを使用）
+async function getAccuracyByDocumentTypeImpl(userId: string): Promise<CategoryStats[]> {
+  const supabase = createServiceClient()
+
   const { data, error } = await supabase
     .from("user_stats_by_document_type")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   if (error) {
     console.error("Error fetching document type stats:", error)
@@ -70,16 +84,30 @@ export async function getAccuracyByDocumentType(): Promise<CategoryStats[]> {
   }))
 }
 
-// 設問タイプ別正答率
-export async function getAccuracyByQuestionType(): Promise<CategoryStats[]> {
+// 文書タイプ別正答率 - キャッシュ付き
+export async function getAccuracyByDocumentType(): Promise<CategoryStats[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
+  return unstable_cache(
+    () => getAccuracyByDocumentTypeImpl(user.id),
+    [`accuracy-document-type-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.VERY_LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
+}
+
+// 設問タイプ別正答率 - 内部実装（キャッシュ用にService Clientを使用）
+async function getAccuracyByQuestionTypeImpl(userId: string): Promise<CategoryStats[]> {
+  const supabase = createServiceClient()
+
   const { data, error } = await supabase
     .from("user_stats_by_question_type")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   if (error) {
     console.error("Error fetching question type stats:", error)
@@ -94,16 +122,30 @@ export async function getAccuracyByQuestionType(): Promise<CategoryStats[]> {
   }))
 }
 
-// 難易度別正答率
-export async function getAccuracyByDifficulty(): Promise<CategoryStats[]> {
+// 設問タイプ別正答率 - キャッシュ付き
+export async function getAccuracyByQuestionType(): Promise<CategoryStats[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return []
 
+  return unstable_cache(
+    () => getAccuracyByQuestionTypeImpl(user.id),
+    [`accuracy-question-type-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.VERY_LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
+}
+
+// 難易度別正答率 - 内部実装（キャッシュ用にService Clientを使用）
+async function getAccuracyByDifficultyImpl(userId: string): Promise<CategoryStats[]> {
+  const supabase = createServiceClient()
+
   const { data, error } = await supabase
     .from("user_stats_by_difficulty")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("difficulty", { ascending: true })
 
   if (error) {
@@ -127,21 +169,35 @@ export async function getAccuracyByDifficulty(): Promise<CategoryStats[]> {
   }))
 }
 
-// 弱点分析（正答率が低いカテゴリを抽出）
-export async function getWeakAreas(): Promise<WeakAreas> {
+// 難易度別正答率 - キャッシュ付き
+export async function getAccuracyByDifficulty(): Promise<CategoryStats[]> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { documentTypes: [], questionTypes: [] }
+  if (!user) return []
+
+  return unstable_cache(
+    () => getAccuracyByDifficultyImpl(user.id),
+    [`accuracy-difficulty-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.VERY_LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
+}
+
+// 弱点分析 - 内部実装（キャッシュ用にService Clientを使用）
+async function getWeakAreasImpl(userId: string): Promise<WeakAreas> {
+  const supabase = createServiceClient()
 
   const [docTypeResult, questionTypeResult] = await Promise.all([
     supabase
       .from("user_stats_by_document_type")
       .select("*")
-      .eq("user_id", user.id),
+      .eq("user_id", userId),
     supabase
       .from("user_stats_by_question_type")
       .select("*")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
   ])
 
   const weakDocTypes = (docTypeResult.data ?? [])
@@ -168,11 +224,25 @@ export async function getWeakAreas(): Promise<WeakAreas> {
   }
 }
 
-// 総合サマリー
-export async function getAnalyticsSummary() {
+// 弱点分析（正答率が低いカテゴリを抽出）- キャッシュ付き
+export async function getWeakAreas(): Promise<WeakAreas> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) return { documentTypes: [], questionTypes: [] }
+
+  return unstable_cache(
+    () => getWeakAreasImpl(user.id),
+    [`weak-areas-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.VERY_LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
+}
+
+// 総合サマリー - 内部実装（キャッシュ用にService Clientを使用）
+async function getAnalyticsSummaryImpl(userId: string) {
+  const supabase = createServiceClient()
 
   // 今週のデータ
   const weekAgo = new Date()
@@ -181,7 +251,7 @@ export async function getAnalyticsSummary() {
   const { data: weeklyData } = await supabase
     .from("daily_user_stats")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .gte("date", weekAgo.toISOString().split("T")[0])
 
   const weeklyStats = (weeklyData ?? []).reduce(
@@ -201,7 +271,7 @@ export async function getAnalyticsSummary() {
   const { data: allTimeData } = await supabase
     .from("daily_user_stats")
     .select("*")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   const allTimeStats = (allTimeData ?? []).reduce(
     (acc, day) => ({
@@ -228,4 +298,20 @@ export async function getAnalyticsSummary() {
       timeMinutes: Math.round(allTimeStats.time / 60)
     }
   }
+}
+
+// 総合サマリー - キャッシュ付き
+export async function getAnalyticsSummary() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  return unstable_cache(
+    () => getAnalyticsSummaryImpl(user.id),
+    [`analytics-summary-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.LONG,
+      tags: [CACHE_TAGS.ANALYTICS, `user-${user.id}`]
+    }
+  )()
 }

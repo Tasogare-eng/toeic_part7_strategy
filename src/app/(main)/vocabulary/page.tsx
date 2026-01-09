@@ -12,7 +12,7 @@ import {
 } from "@/actions/vocabulary"
 import { VocabularyStats } from "@/components/vocabulary/VocabularyStats"
 import { VocabularyList } from "@/components/vocabulary/VocabularyList"
-import { LEVEL_LABELS, VocabularyLevel } from "@/types/vocabulary"
+import { LEVEL_LABELS, VocabularyLevel, VocabularyCategory } from "@/types/vocabulary"
 
 interface Props {
   searchParams: Promise<{ level?: string; category?: string }>
@@ -21,10 +21,10 @@ interface Props {
 export default async function VocabularyPage({ searchParams }: Props) {
   const params = await searchParams
   const level = params.level ? (parseInt(params.level) as VocabularyLevel) : undefined
-  const category = params.category
+  const category = params.category as VocabularyCategory | undefined
 
   const [vocabularies, stats, todayReview] = await Promise.all([
-    getVocabulary({ level, category: category || undefined, limit: 50 }),
+    getVocabulary({ level, category, limit: 50 }),
     getVocabularyStats(),
     getTodayReviewVocabulary(),
   ])

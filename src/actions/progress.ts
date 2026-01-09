@@ -1,6 +1,8 @@
 "use server"
 
-import { createClient } from "@/lib/supabase/server"
+import { unstable_cache } from "next/cache"
+import { createClient, createServiceClient } from "@/lib/supabase/server"
+import { CACHE_TIMES, CACHE_TAGS } from "@/lib/cache"
 
 export interface DashboardStats {
   totalAnswered: number
@@ -9,16 +11,14 @@ export interface DashboardStats {
   targetProgress: number
 }
 
-export async function getDashboardStats(): Promise<DashboardStats | null> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return null
+// ダッシュボード統計 - 内部実装（キャッシュ用にService Clientを使用）
+async function getDashboardStatsImpl(userId: string): Promise<DashboardStats> {
+  const supabase = createServiceClient()
 
   const { data: answers } = await supabase
     .from("user_answers")
     .select("is_correct")
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
 
   if (!answers || answers.length === 0) {
     return {
@@ -42,6 +42,23 @@ export async function getDashboardStats(): Promise<DashboardStats | null> {
   }
 }
 
+// ダッシュボード統計 - キャッシュ付き
+export async function getDashboardStats(): Promise<DashboardStats | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
+  return unstable_cache(
+    () => getDashboardStatsImpl(user.id),
+    [`dashboard-stats-${user.id}`],
+    {
+      revalidate: CACHE_TIMES.MEDIUM,
+      tags: [CACHE_TAGS.DASHBOARD, `user-${user.id}`]
+    }
+  )()
+}
+
 export interface RecentActivity {
   passageId: string
   passageTitle: string
@@ -51,11 +68,9 @@ export interface RecentActivity {
   answeredAt: string
 }
 
-export async function getRecentActivity(limit = 5): Promise<RecentActivity[]> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return []
+// 最近のアクティビティ - 内部実装（キャッシュ用にService Clientを使用）
+async function getRecentActivityImpl(userId: string, limit: number): Promise<RecentActivity[]> {
+  const supabase = createServiceClient()
 
   const { data: answers } = await supabase
     .from("user_answers")
@@ -65,7 +80,7 @@ export async function getRecentActivity(limit = 5): Promise<RecentActivity[]> {
       answered_at,
       reading_passages(title, document_type)
     `)
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .order("answered_at", { ascending: false })
 
   if (!answers) return []
@@ -90,4 +105,21 @@ export async function getRecentActivity(limit = 5): Promise<RecentActivity[]> {
   }, {} as Record<string, RecentActivity>)
 
   return Object.values(grouped).slice(0, limit)
+}
+
+// 最近のアクティビティ - キャッシュ付き
+export async function getRecentActivity(limit = 5): Promise<RecentActivity[]> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return []
+
+  return unstable_cache(
+    () => getRecentActivityImpl(user.id, limit),
+    [`recent-activity-${user.id}-${limit}`],
+    {
+      revalidate: CACHE_TIMES.SHORT,
+      tags: [CACHE_TAGS.DASHBOARD, `user-${user.id}`]
+    }
+  )()
 }

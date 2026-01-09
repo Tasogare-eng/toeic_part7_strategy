@@ -242,6 +242,19 @@ getTimeOverruns()      // 時間超過率
 getTotalStudyTime()    // 総学習時間
 ```
 
+### 模試 (src/actions/mock-exam.ts)
+```typescript
+startMockExam(type)              // 模試を開始
+getMockExam(examId)              // 模試情報を取得
+getMockExamQuestions(examId)     // 模試の問題一覧を取得
+submitMockExamAnswer(...)        // 回答を送信
+completeMockExam(examId)         // 模試を完了
+abandonMockExam(examId)          // 模試を中断
+getInProgressMockExam()          // 進行中の模試を取得
+getMockExamResults()             // 模試結果一覧を取得
+getMockExamResult(examId)        // 単一の模試結果を取得
+```
+
 ## 開発フェーズ
 
 ### Phase 1: MVP（完了）
@@ -273,10 +286,11 @@ getTotalStudyTime()    // 総学習時間
 - [x] 時間制限機能（タイマー、推奨時間表示）
 - [x] 間隔反復学習（忘却曲線に基づく復習スケジュール）
 
-### Phase 5: 模試・最適化
-- [ ] 模試機能
-- [ ] PWA対応
-- [ ] パフォーマンス最適化
+### Phase 5: 模試・最適化（完了）
+- [x] 模試機能（フル模試100問、ミニ模試15分/30分）
+- [x] 文法・単語AI生成UI（管理者画面）
+- [x] PWA対応（manifest.json、next-pwa）
+- [ ] パフォーマンス最適化（継続）
 
 ## コーディング規約
 

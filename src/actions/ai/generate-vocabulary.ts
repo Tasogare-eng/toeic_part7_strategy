@@ -1,6 +1,7 @@
 "use server"
 
-import { createOpenAIClient, handleOpenAIError } from "@/lib/openai/client"
+import { getOpenAIClient } from "@/lib/openai/client"
+import { handleOpenAIError } from "@/lib/openai/errors"
 import { requireAdmin } from "./admin"
 import { createClient } from "@/lib/supabase/server"
 import type { VocabularyLevel, VocabularyCategory } from "@/types/vocabulary"
@@ -42,7 +43,7 @@ const CATEGORY_DESCRIPTIONS: Record<VocabularyCategory, string> = {
 export async function generateVocabulary(request: VocabularyGenerationRequest) {
   await requireAdmin()
 
-  const openai = createOpenAIClient()
+  const openai = getOpenAIClient()
 
   const prompt = `
 Generate ${request.count} TOEIC vocabulary words for the following criteria:

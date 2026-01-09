@@ -1,6 +1,7 @@
 "use server"
 
-import { createOpenAIClient, handleOpenAIError } from "@/lib/openai/client"
+import { getOpenAIClient } from "@/lib/openai/client"
+import { handleOpenAIError } from "@/lib/openai/errors"
 import { requireAdmin } from "./admin"
 import { createClient } from "@/lib/supabase/server"
 import type { GrammarCategory } from "@/types/grammar"
@@ -46,7 +47,7 @@ export async function generateGrammarQuestions(
 ) {
   await requireAdmin()
 
-  const openai = createOpenAIClient()
+  const openai = getOpenAIClient()
 
   const prompt = `
 Generate ${request.count} TOEIC Part 5/6 style grammar questions for:
