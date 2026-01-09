@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { signOut, getProfile } from "@/actions/auth"
-import { BarChart3, BookOpen, Home } from "lucide-react"
+import { BarChart3, BookOpen, Home, Languages, FileQuestion, RotateCcw } from "lucide-react"
 
 export default async function MainLayout({
   children,
@@ -32,14 +32,35 @@ export default async function MainLayout({
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <BookOpen className="h-4 w-4" />
-                問題一覧
+                長文読解
+              </Link>
+              <Link
+                href="/vocabulary"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Languages className="h-4 w-4" />
+                単語
+              </Link>
+              <Link
+                href="/grammar"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <FileQuestion className="h-4 w-4" />
+                文法
+              </Link>
+              <Link
+                href="/review"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <RotateCcw className="h-4 w-4" />
+                復習
               </Link>
               <Link
                 href="/analytics"
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <BarChart3 className="h-4 w-4" />
-                学習分析
+                分析
               </Link>
             </nav>
           </div>

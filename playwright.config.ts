@@ -1,4 +1,7 @@
 import { defineConfig, devices } from "@playwright/test"
+import path from "path"
+
+const authFile = path.join(__dirname, "tests/.auth/user.json")
 
 export default defineConfig({
   testDir: "./tests",
@@ -13,9 +16,27 @@ export default defineConfig({
     screenshot: "only-on-failure",
   },
   projects: [
+    // 認証セットアップ（最初に実行）
     {
-      name: "chromium",
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
+    },
+    // 認証不要のテスト
+    {
+      name: "unauthenticated",
+      testMatch: /\.(spec|test)\.ts$/,
+      testIgnore: /authenticated\./,
       use: { ...devices["Desktop Chrome"] },
+    },
+    // 認証が必要なテスト
+    {
+      name: "authenticated",
+      testMatch: /authenticated\./,
+      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: authFile,
+      },
     },
   ],
   webServer: {

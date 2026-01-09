@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   // 認証が必要なパス
-  const protectedPaths = ["/dashboard", "/reading", "/results", "/admin", "/analytics"]
+  const protectedPaths = ["/dashboard", "/reading", "/vocabulary", "/grammar", "/review", "/results", "/admin", "/analytics"]
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   )

@@ -126,3 +126,37 @@ VALUES
   'The notice states patrons with items "more than 30 days overdue will have their borrowing privileges suspended."',
   3
 );
+
+-- =====================================================
+-- 単語サンプルデータ
+-- =====================================================
+
+INSERT INTO public.vocabulary (word, meaning, pronunciation, part_of_speech, level, example_sentence, example_translation, category, synonyms)
+VALUES
+-- Level 1 (600点レベル)
+('confirm', '確認する、承認する', '/kənˈfɜːrm/', 'verb', 1, 'Please confirm your attendance by Friday.', '金曜日までに出席を確認してください。', 'business', ARRAY['verify', 'validate', 'approve']),
+('attend', '出席する、参加する', '/əˈtend/', 'verb', 1, 'All employees must attend the meeting.', '全従業員がミーティングに出席しなければなりません。', 'business', ARRAY['participate', 'join', 'be present']),
+('schedule', 'スケジュール、予定', '/ˈskedʒuːl/', 'noun', 1, 'The project schedule has been updated.', 'プロジェクトのスケジュールが更新されました。', 'business', ARRAY['timetable', 'agenda', 'plan']),
+('available', '利用可能な、入手可能な', '/əˈveɪləbl/', 'adjective', 1, 'The manager is not available right now.', 'マネージャーは今対応できません。', 'business', ARRAY['accessible', 'obtainable', 'free']),
+('deadline', '締め切り、期限', '/ˈdedlaɪn/', 'noun', 1, 'The deadline for the report is next Monday.', 'レポートの締め切りは来週の月曜日です。', 'business', ARRAY['due date', 'time limit', 'cutoff']),
+
+-- Level 2 (700点レベル)
+('implement', '実施する、導入する', '/ˈɪmplɪment/', 'verb', 2, 'We will implement the new policy next month.', '来月新しい方針を実施します。', 'business', ARRAY['execute', 'carry out', 'put into effect']),
+('efficient', '効率的な、能率的な', '/ɪˈfɪʃnt/', 'adjective', 2, 'The new system is more efficient than the old one.', '新しいシステムは古いものより効率的です。', 'business', ARRAY['effective', 'productive', 'competent']),
+('revenue', '収益、売上高', '/ˈrevənjuː/', 'noun', 2, 'The company''s revenue increased by 20%.', '会社の収益は20%増加しました。', 'finance', ARRAY['income', 'earnings', 'proceeds']),
+('negotiate', '交渉する、折衝する', '/nɪˈɡoʊʃieɪt/', 'verb', 2, 'They are negotiating a new contract.', '彼らは新しい契約を交渉しています。', 'business', ARRAY['bargain', 'discuss', 'deal']),
+('inventory', '在庫、棚卸し', '/ˈɪnvəntɔːri/', 'noun', 2, 'We need to check the inventory levels.', '在庫レベルを確認する必要があります。', 'business', ARRAY['stock', 'supply', 'goods']),
+
+-- Level 3 (800点レベル)
+('acquisition', '買収、取得', '/ˌækwɪˈzɪʃn/', 'noun', 3, 'The acquisition will be completed next quarter.', '買収は来四半期に完了する予定です。', 'finance', ARRAY['purchase', 'takeover', 'procurement']),
+('contingency', '不測の事態、緊急時', '/kənˈtɪndʒənsi/', 'noun', 3, 'We have a contingency plan in place.', '緊急時の計画を準備しています。', 'business', ARRAY['emergency', 'eventuality', 'possibility']),
+('depreciation', '減価償却、価値低下', '/dɪˌpriːʃiˈeɪʃn/', 'noun', 3, 'The depreciation of assets affects our balance sheet.', '資産の減価償却は貸借対照表に影響します。', 'finance', ARRAY['devaluation', 'decline', 'decrease']),
+('feasibility', '実現可能性、実行可能性', '/ˌfiːzəˈbɪləti/', 'noun', 3, 'We conducted a feasibility study for the project.', 'プロジェクトの実現可能性調査を実施しました。', 'business', ARRAY['viability', 'practicability', 'workability']),
+('subsidiary', '子会社、補助的な', '/səbˈsɪdieri/', 'noun', 3, 'The subsidiary operates in five countries.', 'その子会社は5か国で事業を展開しています。', 'business', ARRAY['affiliate', 'branch', 'division']),
+
+-- Level 4 (900点レベル)
+('amortization', '償却、分割払い', '/əˌmɔːrtɪˈzeɪʃn/', 'noun', 4, 'The amortization period is 10 years.', '償却期間は10年です。', 'finance', ARRAY['repayment', 'depreciation', 'write-off']),
+('divestiture', '事業売却、資産処分', '/daɪˈvestɪtʃər/', 'noun', 4, 'The divestiture of non-core assets is planned.', '非中核資産の売却が計画されています。', 'finance', ARRAY['disposal', 'sale', 'liquidation']),
+('indemnification', '補償、賠償', '/ɪnˌdemnɪfɪˈkeɪʃn/', 'noun', 4, 'The contract includes an indemnification clause.', '契約には補償条項が含まれています。', 'business', ARRAY['compensation', 'reimbursement', 'protection']),
+('proprietary', '独自の、専有の', '/prəˈpraɪəteri/', 'adjective', 4, 'We use proprietary software for our operations.', '当社は独自のソフトウェアを使用しています。', 'technology', ARRAY['exclusive', 'patented', 'private']),
+('remuneration', '報酬、給与', '/rɪˌmjuːnəˈreɪʃn/', 'noun', 4, 'The executive remuneration package was disclosed.', '役員報酬パッケージが開示されました。', 'hr', ARRAY['compensation', 'salary', 'payment']);

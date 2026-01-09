@@ -121,6 +121,15 @@ interface ReadingQuestion { id, passage_id, question_text, options[], correct_an
 interface UserAnswer { id, user_id, question_id, selected_answer, is_correct, ... }
 ```
 
+## 開発環境
+
+### Node.js パス
+```bash
+# npm/npx の絶対パス（Homebrew Node.js 20）
+/opt/homebrew/opt/node@20/bin/npm
+/opt/homebrew/opt/node@20/bin/npx
+```
+
 ## 開発コマンド
 
 ```bash
@@ -196,6 +205,43 @@ getWeakAreas()               // 弱点分析
 getAnalyticsSummary()        // サマリー統計
 ```
 
+### 単語学習 (src/actions/vocabulary.ts)
+```typescript
+getVocabulary(options)       // 単語一覧取得（レベル/カテゴリ別）
+getTodayReviewVocabulary()   // 今日の復習単語
+getUnlearnedVocabulary()     // 未学習の単語
+recordVocabularyResult()     // 学習結果を記録
+getVocabularyStats()         // 単語統計
+getVocabularyStatsByLevel()  // レベル別統計
+```
+
+### 文法問題 (src/actions/grammar.ts)
+```typescript
+getGrammarQuestions(options)     // 文法問題一覧
+getRandomGrammarQuestions()      // ランダム問題取得
+submitGrammarAnswer()            // 回答送信
+getGrammarStatsByCategory()      // カテゴリ別統計
+getIncorrectGrammarQuestions()   // 間違えた問題
+getGrammarStats()                // 文法統計
+```
+
+### 復習 (src/actions/review.ts)
+```typescript
+addBookmark()                         // ブックマーク追加
+removeBookmark()                      // ブックマーク削除
+getBookmarks()                        // ブックマーク一覧
+getTodayReviewSchedule()              // 今日の復習スケジュール
+completeReviewItem()                  // 復習完了
+generateReviewScheduleFromMistakes() // 復習スケジュール自動生成
+```
+
+### 時間管理 (src/actions/timer.ts)
+```typescript
+getTimeStats()         // 時間統計
+getTimeOverruns()      // 時間超過率
+getTotalStudyTime()    // 総学習時間
+```
+
 ## 開発フェーズ
 
 ### Phase 1: MVP（完了）
@@ -211,7 +257,8 @@ getAnalyticsSummary()        // サマリー統計
 ### Phase 2: AI統合（完了）
 - [x] GPT-4による問題生成API
 - [x] 長文問題の自動生成（管理者専用）
-- [ ] 文法問題の自動生成（後回し）
+- [x] 文法問題の自動生成
+- [x] 単語の自動生成
 
 ### Phase 3: 学習管理 + Google認証（完了）
 - [x] Google OAuth認証
@@ -219,10 +266,12 @@ getAnalyticsSummary()        // サマリー統計
 - [x] 正答率グラフ（recharts）
 - [x] 弱点分析
 
-### Phase 4: 復習・時間管理
-- [ ] 復習機能
-- [ ] 時間制限機能
-- [ ] 間隔反復学習
+### Phase 4: 単語・文法・復習・時間管理（完了）
+- [x] 単語学習機能（フラッシュカード、レベル別学習）
+- [x] 文法学習機能（Part5/6形式、カテゴリ別練習）
+- [x] 復習機能（ブックマーク、復習スケジュール）
+- [x] 時間制限機能（タイマー、推奨時間表示）
+- [x] 間隔反復学習（忘却曲線に基づく復習スケジュール）
 
 ### Phase 5: 模試・最適化
 - [ ] 模試機能
