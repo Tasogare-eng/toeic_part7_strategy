@@ -1,20 +1,24 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { StatsCard } from "@/components/dashboard/StatsCard"
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList"
 import { getProfile } from "@/actions/auth"
 import { getDashboardStats, getRecentActivity } from "@/actions/progress"
 import { getWeakAreas } from "@/actions/analytics"
-import { BarChart3, AlertTriangle } from "lucide-react"
+import { getSubscription } from "@/actions/subscription"
+import { BarChart3, AlertTriangle, Crown, Sparkles } from "lucide-react"
 
 export default async function DashboardPage() {
-  const [profile, stats, activities, weakAreas] = await Promise.all([
+  const [profile, stats, activities, weakAreas, subscription] = await Promise.all([
     getProfile(),
     getDashboardStats(),
     getRecentActivity(),
     getWeakAreas(),
+    getSubscription(),
   ])
+  const isPro =
+    subscription?.planType === "pro" && subscription?.status === "active"
 
   return (
     <div className="space-y-6">
@@ -90,6 +94,47 @@ export default async function DashboardPage() {
             </div>
             <Link href="/analytics" className="text-sm text-yellow-700 hover:underline mt-2 inline-block">
               詳細を見る →
+            </Link>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Proプラン案内（Freeユーザーのみ） */}
+      {!isPro && (
+        <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              Pro プランで学習を加速
+            </CardTitle>
+            <CardDescription>
+              模試機能、詳細分析、復習スケジュールなど、すべての機能が使い放題
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-4 mb-4">
+              <div className="flex items-center gap-1.5 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                無制限の問題演習
+              </div>
+              <div className="flex items-center gap-1.5 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                模試機能
+              </div>
+              <div className="flex items-center gap-1.5 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                詳細分析
+              </div>
+              <div className="flex items-center gap-1.5 text-sm">
+                <Sparkles className="h-4 w-4 text-primary" />
+                復習スケジュール
+              </div>
+            </div>
+            <Link href="/pricing">
+              <Button className="gap-2">
+                <Crown className="h-4 w-4" />
+                Pro プランを見る
+              </Button>
             </Link>
           </CardContent>
         </Card>

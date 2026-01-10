@@ -1,14 +1,30 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { signOut, getProfile } from "@/actions/auth"
-import { BarChart3, BookOpen, Home, Languages, FileQuestion, RotateCcw } from "lucide-react"
+import { getSubscription } from "@/actions/subscription"
+import {
+  BarChart3,
+  BookOpen,
+  Home,
+  Languages,
+  FileQuestion,
+  RotateCcw,
+  Crown,
+  Settings,
+} from "lucide-react"
 
 export default async function MainLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const profile = await getProfile()
+  const [profile, subscription] = await Promise.all([
+    getProfile(),
+    getSubscription(),
+  ])
+  const isPro =
+    subscription?.planType === "pro" && subscription?.status === "active"
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -65,7 +81,26 @@ export default async function MainLayout({
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
+            {isPro ? (
+              <Badge variant="default" className="gap-1">
+                <Crown className="h-3 w-3" />
+                Pro
+              </Badge>
+            ) : (
+              <Link href="/pricing">
+                <Button size="sm" variant="default" className="gap-1">
+                  <Crown className="h-3 w-3" />
+                  Pro にアップグレード
+                </Button>
+              </Link>
+            )}
+            <Link
+              href="/settings"
+              className="text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Settings className="h-5 w-5" />
+            </Link>
+            <span className="text-sm text-muted-foreground hidden sm:inline">
               {profile?.name || profile?.email}
             </span>
             <form action={signOut}>

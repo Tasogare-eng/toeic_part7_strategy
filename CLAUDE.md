@@ -16,6 +16,7 @@ TOEIC Part7で90%の正解率を目指す中上級者（600-800点）向けの�
 | バックエンド | Next.js Server Actions |
 | データベース | Supabase (PostgreSQL) |
 | 認証 | Supabase Auth (Email + Google OAuth) |
+| 決済 | Stripe (SDK v20.1.2 / API 2025-12-15.clover) |
 | AI | OpenAI GPT-4 API |
 | キャッシュ | Next.js unstable_cache |
 | PWA | next-pwa |
