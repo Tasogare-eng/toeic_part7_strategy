@@ -1,6 +1,6 @@
 import { ReactNode } from "react"
 import Link from "next/link"
-import { CreditCard, Settings } from "lucide-react"
+import { CreditCard, Receipt, Settings } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const settingsNav = [
@@ -8,6 +8,11 @@ const settingsNav = [
     href: "/settings/subscription",
     label: "サブスクリプション",
     icon: CreditCard,
+  },
+  {
+    href: "/settings/billing",
+    label: "請求履歴",
+    icon: Receipt,
   },
 ]
 
