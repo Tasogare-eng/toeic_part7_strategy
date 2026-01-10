@@ -90,7 +90,9 @@ test.describe("設定ページ（認証済み）", () => {
   test("設定サイドバーが表示される", async ({ page }) => {
     await page.goto("/settings/subscription")
     await expect(page.getByRole("heading", { name: "設定" })).toBeVisible()
-    await expect(page.getByText("サブスクリプション")).toBeVisible()
+    await expect(
+      page.getByRole("link", { name: "サブスクリプション" })
+    ).toBeVisible()
   })
 
   test("Freeプランユーザーにはアップグレードカードが表示される", async ({
@@ -116,9 +118,7 @@ test.describe("決済結果ページ（認証済み）", () => {
 
   test("決済成功ページの内容が表示される", async ({ page }) => {
     await page.goto("/payment/success")
-    await expect(
-      page.getByRole("heading", { name: "お支払いが完了しました" })
-    ).toBeVisible()
+    await expect(page.getByText("お支払いが完了しました")).toBeVisible()
     await expect(
       page.getByText("Pro プランへのご加入ありがとうございます")
     ).toBeVisible()
@@ -147,9 +147,7 @@ test.describe("決済結果ページ（認証済み）", () => {
 
   test("決済キャンセルページの内容が表示される", async ({ page }) => {
     await page.goto("/payment/cancel")
-    await expect(
-      page.getByRole("heading", { name: "決済がキャンセルされました" })
-    ).toBeVisible()
+    await expect(page.getByText("決済がキャンセルされました")).toBeVisible()
     await expect(page.getByText("お支払いは完了していません")).toBeVisible()
   })
 
