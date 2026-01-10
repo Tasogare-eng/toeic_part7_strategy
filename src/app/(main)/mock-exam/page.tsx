@@ -3,12 +3,15 @@ import { Button } from "@/components/ui/button"
 import { MockExamSelector } from "@/components/mock-exam/MockExamSelector"
 import { MockExamHistory } from "@/components/mock-exam/MockExamHistory"
 import { getInProgressMockExam, getMockExamResults } from "@/actions/mock-exam"
+import { canUseFeature } from "@/actions/usage"
 import { AlertCircle, History } from "lucide-react"
+import { FeatureLock } from "@/components/subscription/FeatureLock"
 
 export default async function MockExamPage() {
-  const [inProgressExam, results] = await Promise.all([
+  const [inProgressExam, results, featureCheck] = await Promise.all([
     getInProgressMockExam(),
     getMockExamResults(),
+    canUseFeature("mock_exam"),
   ])
 
   return (
@@ -52,7 +55,11 @@ export default async function MockExamPage() {
       {/* 模試選択 */}
       <section>
         <h2 className="text-lg font-semibold mb-4">新しい模試を開始</h2>
-        <MockExamSelector />
+        {featureCheck.allowed ? (
+          <MockExamSelector />
+        ) : (
+          <FeatureLock feature="模試機能" variant="replace" />
+        )}
       </section>
 
       {/* 最近の結果 */}

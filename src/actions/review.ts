@@ -3,18 +3,37 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import type { ReviewItemType, Bookmark, ReviewScheduleItem } from "@/types/review"
+import { canUseFeature } from "./usage"
+import type { FeatureCheckResult } from "@/types/subscription"
 
 // ブックマーク追加
+export interface AddBookmarkResult {
+  success: boolean
+  bookmark?: Bookmark
+  featureLocked?: boolean
+  featureCheck?: FeatureCheckResult
+}
+
 export async function addBookmark(
   itemType: ReviewItemType,
   itemId: string,
   note?: string
-): Promise<Bookmark> {
+): Promise<AddBookmarkResult> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("認証が必要です")
+
+  // Pro限定機能チェック
+  const featureCheck = await canUseFeature("bookmarks")
+  if (!featureCheck.allowed) {
+    return {
+      success: false,
+      featureLocked: true,
+      featureCheck,
+    }
+  }
 
   const { data, error } = await supabase
     .from("bookmarks")
@@ -35,7 +54,7 @@ export async function addBookmark(
   if (error) throw error
 
   revalidatePath("/review")
-  return data
+  return { success: true, bookmark: data }
 }
 
 // ブックマーク削除
@@ -154,17 +173,34 @@ export async function completeReviewItem(scheduleId: string): Promise<void> {
 }
 
 // 復習スケジュールを追加
+export interface AddReviewScheduleResult {
+  success: boolean
+  schedule?: ReviewScheduleItem
+  featureLocked?: boolean
+  featureCheck?: FeatureCheckResult
+}
+
 export async function addReviewSchedule(
   itemType: ReviewItemType,
   itemId: string,
   scheduledDate: Date,
   priority: 1 | 2 | 3 = 2
-): Promise<ReviewScheduleItem> {
+): Promise<AddReviewScheduleResult> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("認証が必要です")
+
+  // Pro限定機能チェック
+  const featureCheck = await canUseFeature("review_schedule")
+  if (!featureCheck.allowed) {
+    return {
+      success: false,
+      featureLocked: true,
+      featureCheck,
+    }
+  }
 
   const { data, error } = await supabase
     .from("review_schedule")
@@ -186,7 +222,7 @@ export async function addReviewSchedule(
   if (error) throw error
 
   revalidatePath("/review")
-  return data
+  return { success: true, schedule: data }
 }
 
 // 間違えた問題から復習スケジュールを自動生成

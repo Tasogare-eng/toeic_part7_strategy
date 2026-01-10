@@ -2,6 +2,8 @@
 
 import { createClient } from "@/lib/supabase/server"
 import type { PassageWithQuestions, PassageWithProgress, UserAnswer } from "@/types/database"
+import { incrementUsage, canUseUsage } from "./usage"
+import type { UsageCheckResult } from "@/types/subscription"
 
 export async function getPassages(): Promise<PassageWithProgress[]> {
   const supabase = await createClient()
@@ -69,15 +71,33 @@ export async function getPassageWithQuestions(
   }
 }
 
+export interface SubmitAnswersResult {
+  success: boolean
+  results: UserAnswer[]
+  limitReached?: boolean
+  usage?: UsageCheckResult
+}
+
 export async function submitAnswers(
   passageId: string,
   answers: { questionId: string; selectedAnswer: number; timeSpent: number }[]
-): Promise<{ success: boolean; results: UserAnswer[] }> {
+): Promise<SubmitAnswersResult> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     return { success: false, results: [] }
+  }
+
+  // 利用制限チェック
+  const usageCheck = await canUseUsage("reading")
+  if (!usageCheck.allowed) {
+    return {
+      success: false,
+      results: [],
+      limitReached: true,
+      usage: usageCheck,
+    }
   }
 
   // 正答を取得
@@ -115,7 +135,14 @@ export async function submitAnswers(
     return { success: false, results: [] }
   }
 
-  return { success: true, results: insertedAnswers || [] }
+  // 利用回数をインクリメント
+  const usageResult = await incrementUsage("reading")
+
+  return {
+    success: true,
+    results: insertedAnswers || [],
+    usage: usageResult,
+  }
 }
 
 export async function getPassageResults(passageId: string) {

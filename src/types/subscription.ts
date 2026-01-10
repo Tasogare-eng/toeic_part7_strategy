@@ -1,6 +1,55 @@
 // プランタイプ
 export type PlanType = "free" | "pro"
 
+// 利用タイプ（日次）
+export type DailyUsageType = "reading" | "grammar" | "vocabulary"
+
+// 利用タイプ（月次 - AI機能）
+export type MonthlyUsageType = "ai_passage" | "ai_grammar" | "ai_vocabulary"
+
+// 全利用タイプ
+export type UsageType = DailyUsageType | MonthlyUsageType
+
+// 機能タイプ（Pro限定機能）
+export type FeatureType =
+  | "mock_exam"
+  | "detailed_analytics"
+  | "review_schedule"
+  | "bookmarks"
+  | "ai_generation"
+
+// 利用可否チェック結果
+export interface UsageCheckResult {
+  allowed: boolean
+  current: number
+  limit: number | null // null = 無制限
+  remaining: number | null // null = 無制限
+}
+
+// 機能アクセスチェック結果
+export interface FeatureCheckResult {
+  allowed: boolean
+  reason?: string
+  upgradeRequired?: boolean
+}
+
+// 利用状況サマリー
+export interface UsageSummary {
+  planType: PlanType
+  daily: {
+    reading: UsageCheckResult
+    grammar: UsageCheckResult
+    vocabulary: UsageCheckResult
+  }
+  features: {
+    mockExam: boolean
+    detailedAnalytics: boolean
+    reviewSchedule: boolean
+    bookmarks: boolean
+    aiGeneration: boolean
+  }
+}
+
 // サブスクリプションステータス
 export type SubscriptionStatus =
   | "active"
@@ -68,7 +117,7 @@ export interface PlanLimits {
 // プラン別制限定数
 export const PLAN_LIMITS: Record<PlanType, PlanLimits> = {
   free: {
-    reading: 5,
+    reading: 3,
     grammar: 10,
     vocabulary: 20,
     bookmarks: 0,

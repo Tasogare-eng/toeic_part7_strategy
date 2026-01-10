@@ -1,10 +1,11 @@
-import { redirect } from "next/navigation"
 import {
   getVocabulary,
   getTodayReviewVocabulary,
   getUnlearnedVocabulary,
 } from "@/actions/vocabulary"
+import { canUseUsage } from "@/actions/usage"
 import { FlashCardSession } from "@/components/vocabulary/FlashCardSession"
+import { UsageLimitBlock } from "@/components/subscription/UsageLimitBlock"
 import { VocabularyLevel, VocabularyCategory } from "@/types/vocabulary"
 
 interface Props {
@@ -24,6 +25,23 @@ export default async function FlashCardPage({ searchParams }: Props) {
   const category = params.category as VocabularyCategory | undefined
   const mode = params.mode || "new" // "new" | "review" | "all"
   const count = params.count ? parseInt(params.count) : 20
+
+  // 利用制限チェック
+  const usageCheck = await canUseUsage("vocabulary")
+
+  // 制限に達している場合はブロック画面を表示
+  if (!usageCheck.allowed) {
+    return (
+      <div className="container mx-auto py-6">
+        <UsageLimitBlock
+          featureType="vocabulary"
+          limit={usageCheck.limit ?? 0}
+          title="単語学習"
+          message={`本日の単語学習の利用制限（${usageCheck.limit}語）に達しました。`}
+        />
+      </div>
+    )
+  }
 
   let vocabularies
 

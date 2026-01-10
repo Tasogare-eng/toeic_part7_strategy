@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
 import type { GrammarQuestion, GrammarCategory } from "@/types/grammar"
+import { incrementUsage, canUseUsage } from "./usage"
+import type { UsageCheckResult } from "@/types/subscription"
 
 interface GetGrammarQuestionsOptions {
   category?: GrammarCategory
@@ -92,16 +94,34 @@ export async function getRandomGrammarQuestions(
 }
 
 // 文法問題の回答を送信
+export interface SubmitGrammarAnswerResult {
+  isCorrect: boolean
+  correctAnswer: string
+  limitReached?: boolean
+  usage?: UsageCheckResult
+}
+
 export async function submitGrammarAnswer(
   questionId: string,
   selectedAnswer: string,
   timeSpentSeconds?: number
-): Promise<{ isCorrect: boolean; correctAnswer: string }> {
+): Promise<SubmitGrammarAnswerResult> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("認証が必要です")
+
+  // 利用制限チェック
+  const usageCheck = await canUseUsage("grammar")
+  if (!usageCheck.allowed) {
+    return {
+      isCorrect: false,
+      correctAnswer: "",
+      limitReached: true,
+      usage: usageCheck,
+    }
+  }
 
   // 正解を取得
   const { data: question } = await supabase
@@ -124,10 +144,17 @@ export async function submitGrammarAnswer(
 
   if (error) throw error
 
+  // 利用回数をインクリメント
+  const usageResult = await incrementUsage("grammar")
+
   // Note: revalidatePath is not called here to prevent page re-render during practice session
   // The grammar page will be revalidated when the user navigates back
 
-  return { isCorrect, correctAnswer: question.correct_answer }
+  return {
+    isCorrect,
+    correctAnswer: question.correct_answer,
+    usage: usageResult,
+  }
 }
 
 // 文法カテゴリ別の統計を取得
