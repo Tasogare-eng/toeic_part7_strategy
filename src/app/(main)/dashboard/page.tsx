@@ -10,6 +10,7 @@ import { getSubscription } from "@/actions/subscription"
 import { getUsageSummary } from "@/actions/usage"
 import { BarChart3, AlertTriangle, Crown, Sparkles } from "lucide-react"
 import { UsageMeter } from "@/components/subscription/UsageMeter"
+import { CurrentPlanBadge } from "@/components/subscription/CurrentPlanBadge"
 
 export default async function DashboardPage() {
   const [profile, stats, activities, weakAreas, subscription, usageSummary] = await Promise.all([
@@ -25,9 +26,17 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">
-        ようこそ、{profile?.name || "ゲスト"}さん
-      </h1>
+      <div className="flex items-center gap-3">
+        <h1 className="text-2xl font-bold">
+          ようこそ、{profile?.name || "ゲスト"}さん
+        </h1>
+        <CurrentPlanBadge
+          planType={subscription?.planType || "free"}
+          status={subscription?.status}
+          cancelAtPeriodEnd={subscription?.cancelAtPeriodEnd}
+          size="sm"
+        />
+      </div>
 
       {/* 統計カード */}
       <div className="grid gap-4 md:grid-cols-3">
