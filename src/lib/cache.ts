@@ -21,6 +21,8 @@ export const CACHE_TAGS = {
   VOCABULARY: "vocabulary",
   READING: "reading",
   PROGRESS: "progress",
+  SUBSCRIPTION: "subscription",
+  BILLING: "billing",
 } as const
 
 /**
