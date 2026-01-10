@@ -9,6 +9,8 @@ import type {
   VocabularyCategory,
 } from "@/types/vocabulary"
 import { DEFAULT_SPACED_REPETITION_CONFIG } from "@/types/review"
+import { incrementUsage, canUseUsage } from "./usage"
+import type { UsageCheckResult } from "@/types/subscription"
 
 interface GetVocabularyOptions {
   level?: VocabularyLevel
@@ -183,15 +185,31 @@ export async function getUnlearnedVocabulary(
 }
 
 // 単語学習結果を記録
+export interface RecordVocabularyResultResponse {
+  success: boolean
+  limitReached?: boolean
+  usage?: UsageCheckResult
+}
+
 export async function recordVocabularyResult(
   vocabularyId: string,
   isCorrect: boolean
-): Promise<void> {
+): Promise<RecordVocabularyResultResponse> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("認証が必要です")
+
+  // 利用制限チェック
+  const usageCheck = await canUseUsage("vocabulary")
+  if (!usageCheck.allowed) {
+    return {
+      success: false,
+      limitReached: true,
+      usage: usageCheck,
+    }
+  }
 
   const config = DEFAULT_SPACED_REPETITION_CONFIG
 
@@ -259,8 +277,16 @@ export async function recordVocabularyResult(
     if (error) throw error
   }
 
+  // 利用回数をインクリメント
+  const usageResult = await incrementUsage("vocabulary")
+
   // Note: revalidatePath is not called here to prevent re-shuffling during flashcard session
   // The vocabulary page will be revalidated when the user navigates back
+
+  return {
+    success: true,
+    usage: usageResult,
+  }
 }
 
 // 単語統計を取得

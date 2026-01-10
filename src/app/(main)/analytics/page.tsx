@@ -9,9 +9,14 @@ import {
   getWeakAreas,
   getAnalyticsSummary
 } from "@/actions/analytics"
+import { canUseFeature } from "@/actions/usage"
 import { Target, TrendingUp, Clock, BookOpen } from "lucide-react"
+import { FeatureLock } from "@/components/subscription/FeatureLock"
+import { UpgradeBanner } from "@/components/subscription/UpgradeBanner"
 
 export default async function AnalyticsPage() {
+  const featureCheck = await canUseFeature("detailed_analytics")
+
   const [dailyData, docTypeData, questionTypeData, difficultyData, weakAreas, summary] = await Promise.all([
     getDailyAccuracy(30),
     getAccuracyByDocumentType(),
@@ -96,59 +101,79 @@ export default async function AnalyticsPage() {
         </CardContent>
       </Card>
 
+      {/* Pro限定: 詳細分析 */}
+      {!featureCheck.allowed && (
+        <UpgradeBanner
+          variant="inline"
+          title="詳細分析機能は Pro プラン限定です"
+        />
+      )}
+
       {/* カテゴリ別分析 */}
-      <Tabs defaultValue="document" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="document">文書タイプ別</TabsTrigger>
-          <TabsTrigger value="question">設問タイプ別</TabsTrigger>
-          <TabsTrigger value="difficulty">難易度別</TabsTrigger>
-        </TabsList>
+      {featureCheck.allowed ? (
+        <Tabs defaultValue="document" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="document">文書タイプ別</TabsTrigger>
+            <TabsTrigger value="question">設問タイプ別</TabsTrigger>
+            <TabsTrigger value="difficulty">難易度別</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="document">
-          <Card>
-            <CardHeader>
-              <CardTitle>文書タイプ別正答率</CardTitle>
-              <CardDescription>
-                各文書タイプでの正答率を確認できます
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DynamicCategoryChart data={docTypeData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="document">
+            <Card>
+              <CardHeader>
+                <CardTitle>文書タイプ別正答率</CardTitle>
+                <CardDescription>
+                  各文書タイプでの正答率を確認できます
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DynamicCategoryChart data={docTypeData} />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="question">
-          <Card>
-            <CardHeader>
-              <CardTitle>設問タイプ別正答率</CardTitle>
-              <CardDescription>
-                主旨把握・詳細理解・推測などタイプ別の正答率
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DynamicCategoryChart data={questionTypeData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="question">
+            <Card>
+              <CardHeader>
+                <CardTitle>設問タイプ別正答率</CardTitle>
+                <CardDescription>
+                  主旨把握・詳細理解・推測などタイプ別の正答率
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DynamicCategoryChart data={questionTypeData} />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="difficulty">
-          <Card>
-            <CardHeader>
-              <CardTitle>難易度別正答率</CardTitle>
-              <CardDescription>
-                TOEICスコア帯別の難易度での正答率
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <DynamicCategoryChart data={difficultyData} />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="difficulty">
+            <Card>
+              <CardHeader>
+                <CardTitle>難易度別正答率</CardTitle>
+                <CardDescription>
+                  TOEICスコア帯別の難易度での正答率
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DynamicCategoryChart data={difficultyData} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      ) : (
+        <FeatureLock feature="カテゴリ別分析" variant="overlay">
+          <Card className="h-[300px]" />
+        </FeatureLock>
+      )}
 
       {/* 弱点分析 */}
-      <WeakAreasCard weakAreas={weakAreas} />
+      {featureCheck.allowed ? (
+        <WeakAreasCard weakAreas={weakAreas} />
+      ) : (
+        <FeatureLock feature="弱点分析" variant="overlay">
+          <Card className="h-[200px]" />
+        </FeatureLock>
+      )}
     </div>
   )
 }

@@ -11,6 +11,8 @@ import type {
   MockExamResultWithExam,
   MOCK_EXAM_CONFIGS,
 } from "@/types/mock-exam"
+import { canUseFeature } from "./usage"
+import type { FeatureCheckResult } from "@/types/subscription"
 
 const EXAM_CONFIGS: Record<MockExamType, MockExamConfig> = {
   full: {
@@ -51,12 +53,29 @@ interface CollectedQuestion {
 }
 
 // 模試を開始
-export async function startMockExam(examType: MockExamType) {
+export interface StartMockExamResult {
+  examId?: string
+  featureLocked?: boolean
+  featureCheck?: FeatureCheckResult
+}
+
+export async function startMockExam(
+  examType: MockExamType
+): Promise<StartMockExamResult> {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
   if (!user) throw new Error("認証が必要です")
+
+  // Pro限定機能チェック
+  const featureCheck = await canUseFeature("mock_exam")
+  if (!featureCheck.allowed) {
+    return {
+      featureLocked: true,
+      featureCheck,
+    }
+  }
 
   const config = EXAM_CONFIGS[examType]
 

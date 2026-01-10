@@ -7,15 +7,18 @@ import { getProfile } from "@/actions/auth"
 import { getDashboardStats, getRecentActivity } from "@/actions/progress"
 import { getWeakAreas } from "@/actions/analytics"
 import { getSubscription } from "@/actions/subscription"
+import { getUsageSummary } from "@/actions/usage"
 import { BarChart3, AlertTriangle, Crown, Sparkles } from "lucide-react"
+import { UsageMeter } from "@/components/subscription/UsageMeter"
 
 export default async function DashboardPage() {
-  const [profile, stats, activities, weakAreas, subscription] = await Promise.all([
+  const [profile, stats, activities, weakAreas, subscription, usageSummary] = await Promise.all([
     getProfile(),
     getDashboardStats(),
     getRecentActivity(),
     getWeakAreas(),
     getSubscription(),
+    getUsageSummary(),
   ])
   const isPro =
     subscription?.planType === "pro" && subscription?.status === "active"
@@ -43,6 +46,35 @@ export default async function DashboardPage() {
           description="目標: 90%正答率"
         />
       </div>
+
+      {/* 今日の利用状況（Freeユーザーのみ表示） */}
+      {!isPro && usageSummary && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">今日の利用状況</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <UsageMeter
+              label="長文読解"
+              current={usageSummary.daily.reading.current}
+              limit={usageSummary.daily.reading.limit}
+              size="sm"
+            />
+            <UsageMeter
+              label="文法問題"
+              current={usageSummary.daily.grammar.current}
+              limit={usageSummary.daily.grammar.limit}
+              size="sm"
+            />
+            <UsageMeter
+              label="単語学習"
+              current={usageSummary.daily.vocabulary.current}
+              limit={usageSummary.daily.vocabulary.limit}
+              size="sm"
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* 学習開始ボタン */}
       <div className="grid gap-4 md:grid-cols-2">
